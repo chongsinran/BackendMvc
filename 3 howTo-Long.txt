@@ -1,0 +1,136 @@
+
+
+- Models
+Purpose: Define the data structure and interactions with the database.
+Location: v1/models/featureModel.js
+
+        const exampleFunction = async (exampleField) => {
+        // Implement your model logic here
+        return { exampleField };
+        };
+
+        module.exports = {
+        exampleFunction
+        };
+
+
+
+- Controllers
+Purpose: Handle the business logic and interact with the model to fulfill HTTP requests.
+Location: v1/controllers/featureController.js
+
+        const { exampleFunction } = require('../models/featureModel');
+
+        const handleFeature = async (req, res, next) => {
+        try {
+            const { exampleField } = req.body;
+
+            // Add your business logic here
+            const result = await exampleFunction(exampleField);
+
+            res.status(200).json({
+            success: true,
+            data: result
+            });
+        } catch (error) {
+            next(error);
+        }
+        };
+
+        module.exports = {
+        handleFeature
+        };
+
+
+-  Routes
+Purpose: Define the API endpoints and link them to the appropriate controller functions.
+Location: v1/routes/feature.js
+
+        const express = require('express');
+        const { body } = require('express-validator');
+        const featureController = require('../controllers/featureController');
+        const auth = require('../middlewares/auth');
+        const errorFormatter = require('../middlewares/errorFormatter');
+        const router = express.Router();
+
+        router.post('/feature', [
+        body('exampleField').isString().withMessage('Example field must be a string')
+        ], auth, errorFormatter, featureController.handleFeature);
+
+        module.exports = router;
+
+- Swagger Documentation
+Purpose: Document the API endpoints for easier understanding and usage.
+Location: v1/routes/feature.swagger.js
+        /**
+        * @swagger
+        * /api/feature:
+        *   post:
+        *     summary: Description of the feature
+        *     tags: [Feature]
+        *     requestBody:
+        *       required: true
+        *       content:
+        *         application/json:
+        *           schema:
+        *             type: object
+        *             properties:
+        *               exampleField:
+        *                 type: string
+        *                 description: Example field
+        *     responses:
+        *       200:
+        *         description: Successful response
+        *       400:
+        *         description: Validation error
+        *       500:
+        *         description: Internal server error
+        */
+
+
+
+- Server.js
+Purpose: The place where all things is handled (Central)
+Location: server.js
+
+        const express = require('express');
+        const cookieParser = require('cookie-parser');
+        const swaggerUi = require('swagger-ui-express');
+        const swaggerJsDoc = require('swagger-jsdoc');
+        const swaggerConfig = require('./v1/config/swaggerConfig');
+        require('dotenv').config();
+
+        const app = express();
+
+        app.use(express.json());
+        app.use(cookieParser());
+
+        // Import routes
+        // Use routes
+
+        // Import swagger
+        const swaggerDocs = swaggerJsDoc(swaggerConfig);
+        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+        const PORT = process.env.PORT || 3000;
+        app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+        });
+
+- Middleware
+Purpose: Middleware functions in a Node.js application are used to process requests and responses. Middleware can handle various tasks such as logging, authentication, error handling, and request parsing. They are functions that have access to the request object (req), the response object (res), and the next middleware function in the application's request-response cycle.
+
+Typical Use Cases:
+    Authentication and Authorization: Verify user credentials and permissions.
+    Logging: Log details about each request.
+    Error Handling: Handle and format errors consistently across the application.
+    Request Parsing: Parse incoming request bodies (e.g., JSON, URL-encoded data).
+    Rate Limiting: Limit the number of requests a client can make to prevent abuse.
+    Security: Add security headers, prevent XSS attacks, etc.
+
+        const errorHandler = (err, req, res, next) => {
+        console.error(err.message, err);
+        res.status(500).json({ message: 'Internal server error' });
+        };
+
+        module.exports = errorHandler;

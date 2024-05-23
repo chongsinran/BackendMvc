@@ -1,0 +1,16 @@
+Summary of Steps: (generateFeature.js Scripts will auto generate the file with imported routes boiler plate )
+
+   1. Define the Feature Requirements: Document expected inputs, outputs, and behavior.
+
+   2. Create the Model: Define the data structure and database interactions.
+
+   3. Create the Controller: Handle business logic and interact with the model.
+
+   4. Create the Route: Define the API endpoint and link it to the controller function
+
+   5. Add in middlewares into the routes:
+        e.g router.post('/feature',auth, errorFormatter, featureController.handleFeature);
+
+   6. Create the Swagger Documentation: Document the API endpoint.
+
+   7. Update server.js: Import and use the new route and Swagger documentation.
