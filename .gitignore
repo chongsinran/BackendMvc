@@ -1,1 +1,7 @@
 node_modules
+.git
+1 readme.txt
+2 howTo-Short.txt
+3 howTo-Long.txt
+package-lock.json
+.env
