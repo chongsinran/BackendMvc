@@ -10,7 +10,7 @@ function drawDirectoryStructure(dir, indent = '') {
     const line = isLast ? '└── ' : '├── ';
 
     // Skip node_modules directory
-    if (file === 'node_modules') {
+    if (file === 'node_modules'||file === '.git' ) {
       return;
     }
 
