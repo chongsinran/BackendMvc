@@ -15,7 +15,9 @@ const getUserByUsername = async (username) => {
   return result.rows[0];
 };
 const getUserByPhone = async (phone) => {
+
   const res = await pool.query('SELECT * FROM users WHERE phone = $1', [phone]);
+  console.log(res.rows)
   return res.rows[0];
 };
 
