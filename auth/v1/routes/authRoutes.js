@@ -32,7 +32,7 @@ const loginValidation = [
   body('passcode').optional().isLength({ min: 6, max: 6 }).withMessage('Passcode must be 6 characters long')
 ];
 router.post('/register',sanitizeInputs, registerValidation, errorFormatter, register);
-router.post('/login',sanitizeInputs, preventbrute ('email'),preventbrute ('phone'),errorFormatter, login);
+router.post('/login',sanitizeInputs,loginValidation, preventbrute ('email'),preventbrute ('phone'),errorFormatter, login);
 router.post('/refresh-token', errorFormatter, refreshAccessToken);
 router.post('/logout', auth, logout);
 router.post('/add-to-blacklist', sanitizeInputs, [

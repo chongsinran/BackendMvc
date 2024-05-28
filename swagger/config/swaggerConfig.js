@@ -30,7 +30,7 @@ const options = {
       },
     ],
   },
-  apis: ['./v1/routes/*.js'], // files containing annotations
+  apis: ['./auth/v1/routes/*',], // files containing annotations
 };
 
 const swaggerSpec = swaggerJsDoc(options);

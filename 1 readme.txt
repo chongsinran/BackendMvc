@@ -1,4 +1,4 @@
 
-npm i bcryptjs dotenv express express-validator helmet jsonwebtoken pg swagger-jsdoc swagger-ui-express lodash redis  cookie-parser
+npm i bcryptjs dotenv express express-validator helmet jsonwebtoken pg swagger-jsdoc swagger-ui-express lodash redis  cookie-parser socket.io amqplib
 
 Change env

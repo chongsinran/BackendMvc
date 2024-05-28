@@ -75,21 +75,17 @@ const register = async (req, res, next) => {
     await createRefreshToken(user.id, refreshToken, refreshTokenExpiresAt);
     await updateLastLogin(user.id);
     // Set the refresh token in an HttpOnly, Secure cookie with SameSite=Lax
-    res.cookie(`${process.env.NOSPACEAPPNAME}refreshToken`, refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'Lax',
-      expires: refreshTokenExpiresAt
-    });
+
 
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
       data: {
         accessToken,
+        refreshToken,
         createdAt: createdAt.getTime(),
         accessTokenExpiresAt: accessTokenExpiresAt.getTime(),
-
+        refreshTokenExpiresAt:refreshTokenExpiresAt.getTime()
       }
     });
   } catch (error) {
@@ -120,6 +116,7 @@ const login = async (req, res, next) => {
       }
     } else if (phone) {
 
+      console.log(phone)
       const { isValid, phoneNumber } = await phoneValidator(`+(${prefix}) ${phone}`)
       console.log(phoneNumber)
       user = await getUserByPhone(phoneNumber||phone);
@@ -155,19 +152,16 @@ const login = async (req, res, next) => {
     await createRefreshToken(user.id, refreshToken, refreshTokenExpiresAt);
     await updateLastLogin(user.id);
     // Set the refresh token in an HttpOnly, Secure cookie with SameSite=Lax
-    res.cookie(`${process.env.NOSPACEAPPNAME}refreshToken`, refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'Lax',
-      expires: refreshTokenExpiresAt
-    });
+ 
     res.status(200).json({
       success: true,
       message: 'Login successful',
       data: {
         accessToken,
+        refreshToken,
         createdAt: createdAt.getTime(),
         accessTokenExpiresAt: accessTokenExpiresAt.getTime(),
+        refreshTokenExpiresAt:refreshTokenExpiresAt.getTime()
 
       }
     });
@@ -180,10 +174,10 @@ const login = async (req, res, next) => {
 
 const refreshAccessToken = async (req, res, next) => {
   const { token } = req.body;
+  console.log(req.headers)
   try {
-    console.log(req.cookies)
-    const { [`${process.env.NOSPACEAPPNAME}refreshToken`]: refreshToken } = req.cookies;
-    if (!refreshToken) {
+
+    if (!token) {
       return res.status(401).json({
         success: false,
         message: 'Authentication Error',
@@ -191,8 +185,8 @@ const refreshAccessToken = async (req, res, next) => {
       });
     }
 
-    if (new Date(refreshToken.expires_at) < new Date()) {
-      await deleteRefreshToken(refreshToken);
+    if (new Date(token.expires_at) < new Date()) {
+      await deleteRefreshToken(token);
       return res.status(401).json({
         success: false,
         message: 'Authentication Error',
@@ -200,7 +194,7 @@ const refreshAccessToken = async (req, res, next) => {
       });
     }
 
-    const user = { id: refreshToken.user_id, role: refreshToken.role };
+    const user = { id: token.user_id, role: token.role };
     const accessToken = generateToken(user, '15m');
     const accessTokenExpiresAt = new Date(new Date().getTime() + 15 * 60 * 1000); // 15 minutes
 
