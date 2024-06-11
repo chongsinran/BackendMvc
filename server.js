@@ -56,7 +56,9 @@ app.use('/auth', authRoutes);
 app.use('/realtime', websocketRoutes); // Add this line
 app.use(errorHandler);
 
-
+app.get("/ehyo",(req,res)=>{
+  return res.send({message:"HelloWorld"})
+})
 setupSwagger(app);
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
