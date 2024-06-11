@@ -6,22 +6,42 @@ const cookieParser = require('cookie-parser');
 const http = require('http');
 const WebSocket = require('ws');
 const cors = require('cors');
+// const { Pool } = require('pg');
+require('dotenv').config();
+dotenv.config();
+
+// const pool = new Pool({
+//   connectionString: process.env.DATABASE_URL
+// });
+
+
 
 // Import routes
-const websocketRoutes = require('./modules/realtime/routes/websocketRoutes');
+const websocketRoutes = require('./modules/realtime/v1/routes/websocketRoutes');
 const authRoutes = require('./modules/auth/v1/routes/authRoutes');
-const errorHandler = require('./modules/auth/v1/middlewares/errorHandler');
-const responseFormatter = require('./modules/auth/v1/middlewares/responseFormatter');
-const sanitizeInputs = require('./modules/auth/v1/middlewares/sanitize');
+
+
+
+// Global middlewares
+const errorHandler = require('./modules/middlewares/errorHandler');
+const responseFormatter = require('./modules/middlewares/responseFormatter');
+const sanitizeInputs = require('./modules/middlewares/sanitize');
 const setupSwagger = require('./swagger/config/swaggerConfig');
 
+
+
+// language
 const i18next = require("i18next");
 const Backend = require('i18next-fs-backend')
+
+
+//logging
 const { join } = require('path')
 const { readdirSync, lstatSync } = require('fs')
-
-const Logger = require('../utils/logger.js');
+const Logger = require('./utils/logUtils.js');
 const logger = new Logger();
+
+
 
 i18next.use(Backend).init({
   // debug: true,
@@ -42,22 +62,18 @@ i18next.use(Backend).init({
   // console.log(t('welcome', { lng: 'de' }))
 })
 
-const initializeWebSocketServer = require('./realtime/config/websocketConfig');
-dotenv.config();
+
+
+
+const initializeWebSocketServer = require('./modules/realtime/v1/config/websocketConfig');
 const app = express();
 const server = http.createServer(app);
-
 const wss = initializeWebSocketServer(server); // Initialize WebSocket server
 
-const { Pool } = require('pg');
-require('dotenv').config();
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-});
 
 app.set('i18next', i18next)
-app.set('pool', pool)
+// app.set('pool', pool)
 
 app.use(cors({
   origin: '*', // Allow all origins (you can restrict this to specific origins)
@@ -87,20 +103,17 @@ app.use(
 
 app.use(sanitizeInputs);
 app.use(responseFormatter);
+app.use(errorHandler);
+
+
+
 
 app.use('/auth', authRoutes);
 app.use('/realtime', websocketRoutes); // Add this line
-app.use(errorHandler);
 
-<<<<<<< HEAD
-app.get("/ehyo",(req,res)=>{
-  return res.send({message:"HelloWorld"})
-})
-=======
->>>>>>> 0a499162ad7c3a385094526c469f45959ab133ae
+
 setupSwagger(app);
 const PORT = process.env.PORT || 3000;
-
 server.listen(PORT, () => {
   console.log(i18next.t('Please login', { what: 'i18next', how: 'not great', lng: 'de' }))
   console.log(`Server running on port ${PORT}`);

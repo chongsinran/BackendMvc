@@ -3,7 +3,7 @@
 const WebSocket = require('ws');
 
 const clients = new Map();// Mapping of clientId to WebSocket clients
-const auth = require('../middlewares/auth');
+const auth = require('../../../middlewares/ws_auth');
 const initializeWebSocketServer = (server) => {
   const wss = new WebSocket.Server({ server, path: '/realtime/ws' });
   wss.on('connection', (ws, req) => {
