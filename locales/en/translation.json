@@ -1,0 +1,6 @@
+{
+  "hello": {
+    "hello": "{{what}} is {{how}}"
+  },
+  "Please login": "Please login"
+}
