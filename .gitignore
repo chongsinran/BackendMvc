@@ -5,3 +5,4 @@ node_modules
 3 howTo-Long.txt
 package-lock.json
 .env
+logs

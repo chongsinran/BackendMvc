@@ -23,7 +23,7 @@ const register = async (req, res, next) => {
   const { username, email, password, phone, prefix, passcode } = req.body;
   try {
     if (email) {
-      const existingEmail = await getUserByEmail( email);
+      const existingEmail = await getUserByEmail(req, email);
       if (existingEmail) {
         return res.status(400).json({
           success: false,
@@ -36,7 +36,7 @@ const register = async (req, res, next) => {
     if (phone && prefix) {
 
       const { isValid, phoneNumber } = await phoneValidator(`+(${prefix})${phone}`)
-      
+
       if (!isValid) {
         return res.status(400).json({
           success: false,
@@ -46,7 +46,7 @@ const register = async (req, res, next) => {
       }
 
 
-      const existingPhone = await getUserByPhone( phoneNumber);
+      const existingPhone = await getUserByPhone(req, phoneNumber);
 
 
       if (existingPhone) {
@@ -62,7 +62,7 @@ const register = async (req, res, next) => {
       hashedPassword = await bcrypt.hash(password, 10);
     }
 
-    const user = await createUser( username, email, phoneValidator(`+(${prefix})${phone}`).phoneNumber, hashedPassword, passcode);
+    const user = await createUser(req, username, email, phoneValidator(`+(${prefix})${phone}`).phoneNumber, hashedPassword, passcode);
 
     console.log(user)
     const accessToken = generateToken(user, '15m');
@@ -71,9 +71,9 @@ const register = async (req, res, next) => {
     const accessTokenExpiresAt = new Date(createdAt.getTime() + 15 * 60 * 1000); // 15 minutes
     const refreshTokenExpiresAt = new Date(createdAt.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
-    await createAccessToken( user.id, accessToken, accessTokenExpiresAt);
-    await createRefreshToken( user.id, refreshToken, refreshTokenExpiresAt);
-    await updateLastLogin( user.id);
+    await createAccessToken(req, user.id, accessToken, accessTokenExpiresAt);
+    await createRefreshToken(req, user.id, refreshToken, refreshTokenExpiresAt);
+    await updateLastLogin(req, user.id);
     // Set the refresh token in an HttpOnly, Secure cookie with SameSite=Lax
 
 
@@ -85,7 +85,7 @@ const register = async (req, res, next) => {
         refreshToken,
         createdAt: createdAt.getTime(),
         accessTokenExpiresAt: accessTokenExpiresAt.getTime(),
-        refreshTokenExpiresAt:refreshTokenExpiresAt.getTime()
+        refreshTokenExpiresAt: refreshTokenExpiresAt.getTime()
       }
     });
   } catch (error) {
@@ -98,7 +98,7 @@ const login = async (req, res, next) => {
   try {
     let user;
     if (email) {
-      user = await getUserByEmail( email);
+      user = await getUserByEmail(req, email);
       if (!user) {
         return res.status(400).json({
           success: false,
@@ -119,7 +119,7 @@ const login = async (req, res, next) => {
       console.log(phone)
       const { isValid, phoneNumber } = await phoneValidator(`+(${prefix}) ${phone}`)
       console.log(phoneNumber)
-      user = await getUserByPhone( phoneNumber||phone);
+      user = await getUserByPhone(req, phoneNumber || phone);
       console.log(user)
       if (!user) {
         return res.status(400).json({
@@ -148,11 +148,11 @@ const login = async (req, res, next) => {
     const accessTokenExpiresAt = new Date(createdAt.getTime() + 15 * 60 * 1000); // 15 minutes
     const refreshTokenExpiresAt = new Date(createdAt.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
-    await createAccessToken( user.id, accessToken, accessTokenExpiresAt);
-    await createRefreshToken( user.id, refreshToken, refreshTokenExpiresAt);
-    await updateLastLogin( user.id);
+    await createAccessToken(req, user.id, accessToken, accessTokenExpiresAt);
+    await createRefreshToken(req, user.id, refreshToken, refreshTokenExpiresAt);
+    await updateLastLogin(req, user.id);
     // Set the refresh token in an HttpOnly, Secure cookie with SameSite=Lax
- 
+
     res.status(200).json({
       success: true,
       message: 'Login successful',
@@ -161,7 +161,7 @@ const login = async (req, res, next) => {
         refreshToken,
         createdAt: createdAt.getTime(),
         accessTokenExpiresAt: accessTokenExpiresAt.getTime(),
-        refreshTokenExpiresAt:refreshTokenExpiresAt.getTime()
+        refreshTokenExpiresAt: refreshTokenExpiresAt.getTime()
 
       }
     });
@@ -186,7 +186,7 @@ const refreshAccessToken = async (req, res, next) => {
     }
 
     if (new Date(token.expires_at) < new Date()) {
-      await deleteRefreshToken( token);
+      await deleteRefreshToken(req, token);
       return res.status(401).json({
         success: false,
         message: 'Authentication Error',
@@ -198,7 +198,7 @@ const refreshAccessToken = async (req, res, next) => {
     const accessToken = generateToken(user, '15m');
     const accessTokenExpiresAt = new Date(new Date().getTime() + 15 * 60 * 1000); // 15 minutes
 
-    await createAccessToken(user.id, accessToken, accessTokenExpiresAt);
+    await createAccessToken(req, user.id, accessToken, accessTokenExpiresAt);
 
     res.status(200).json({
       success: true,
@@ -220,7 +220,7 @@ const logout = async (req, res, next) => {
   }
 
   try {
-    await deleteAccessToken( token);
+    await deleteAccessToken(req, token);
     res.status(200).json({
       success: true,
       message: 'User logged out successfully'
@@ -240,7 +240,7 @@ const addToBlacklist = async (req, res, next) => {
   }
 
   try {
-    await pool.query('INSERT INTO token_blacklist (token) VALUES ($1)', [token]);
+    await req.app.get('pool').query('INSERT INTO token_blacklist (token) VALUES ($1)', [token]);
     redisClient.setex(token, 3600, 'blacklisted'); // Cache for 1 hour
     res.status(200).json({
       success: true,

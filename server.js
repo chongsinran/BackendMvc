@@ -6,13 +6,13 @@ const cookieParser = require('cookie-parser');
 const http = require('http');
 const WebSocket = require('ws');
 const cors = require('cors');
-// const { Pool } = require('pg');
+const { Pool } = require('pg');
 require('dotenv').config();
 dotenv.config();
 
-// const pool = new Pool({
-//   connectionString: process.env.DATABASE_URL
-// });
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL
+});
 
 
 
@@ -73,7 +73,8 @@ const wss = initializeWebSocketServer(server); // Initialize WebSocket server
 
 
 app.set('i18next', i18next)
-// app.set('pool', pool)
+app.set('pool', pool)
+
 
 app.use(cors({
   origin: '*', // Allow all origins (you can restrict this to specific origins)
@@ -115,6 +116,6 @@ app.use('/realtime', websocketRoutes); // Add this line
 setupSwagger(app);
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(i18next.t('Please login', { what: 'i18next', how: 'not great', lng: 'de' }))
-  console.log(`Server running on port ${PORT}`);
+  logger.log(i18next.t('Please login', { what: 'i18next', how: 'not great', lng: 'de' }), 'info')
+  logger.log(`Server running on port ${PORT}`, 'info');
 });
