@@ -11,6 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "agenda": "^5.0.0",
+    "agendash": "^4.0.0",
     "amqplib": "^0.10.4",
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
