@@ -4,7 +4,7 @@ const { extend } = require('lodash').extend;
 
 module.exports = {
 	BadRequest: {
-        error_code: '1000',
+        error_code: 1000,
 		error: 'Bad Request',
 		status: 400,
 	},
