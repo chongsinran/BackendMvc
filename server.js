@@ -23,9 +23,9 @@ const authRoutes = require('./modules/auth/v1/routes/authRoutes');
 
 
 // Global middlewares
-const errorHandler = require('./modules/middlewares/errorHandler');
-const responseFormatter = require('./modules/middlewares/responseFormatter');
-const sanitizeInputs = require('./modules/middlewares/sanitize');
+const errorHandler = require('./middlewares/errorHandler');
+const responseFormatter = require('./middlewares/responseFormatter');
+const sanitizeInputs = require('./middlewares/sanitize');
 const setupSwagger = require('./swagger/config/swaggerConfig');
 
 

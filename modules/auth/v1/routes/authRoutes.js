@@ -7,14 +7,14 @@ const {
   dashboard, 
   logout,
   addToBlacklist  } = require('../controllers/authController');
-const auth = require('../../../middlewares/auth');
-const errorFormatter = require('../../../middlewares/errorFormatter');
-const roleMiddleware = require('../../../middlewares/roleMiddleware');
-const sanitizeInputs = require('../../../middlewares/sanitize');
-const responseFormatter = require('../../../middlewares/responseFormatter');
+const auth = require('../../../../middlewares/auth');
+const errorFormatter = require('../../../../middlewares/errorFormatter');
+const roleMiddleware = require('../../../../middlewares/roleMiddleware');
+const sanitizeInputs = require('../../../../middlewares/sanitize');
+const responseFormatter = require('../../../../middlewares/responseFormatter');
 const router = express.Router();
-const loginLimiter = require('../../../middlewares/rateLimiter');
-const preventbrute  = require('../../../middlewares/bruteForceProtection');
+const loginLimiter = require('../../../../middlewares/rateLimiter');
+const preventbrute  = require('../../../../middlewares/bruteForceProtection');
 
 
 const registerValidation = [
